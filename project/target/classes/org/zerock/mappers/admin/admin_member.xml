@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Admin_member">
+
+	<!-- 여기서 부터 회원 가입 부분 입니다  -->
+	<select id="m_check" resultType="member">
+  	select * from member_join where mem_id=#{id} 
+ 	</select><!-- 아이디 중복 검색 -->
+
+	<insert id="member_insert" parameterType="member">
+	insert into member_join (mem_no,mem_id,mem_pwd,mem_pwd2,mem_name,mem_age,mem_addr,mem_email
+	,mem_phone,mem_phone02,mem_phone03,mem_edit,mem_hit,mem_date,delete_reason,member_Activation
+	) values(mem_no_seq.nextval,#{mem_id},#{mem_pwd},#{mem_pwd2},
+	#{mem_name},#{mem_age},#{mem_addr},#{mem_email},#{mem_phone},#{mem_phone02},
+	#{mem_phone03},0,0,sysdate,#{delete_reason},#{member_Activation})
+	
+	</insert><!-- 회원 저장 -->
+	
+	<select id="select_one_id" parameterType="member" resultType="member">
+		select * from member_join where mem_id=#{mem_id} and member_Activation='YES'
+	</select><!-- 회원 수정할 목록 아이디 Check 기준으로 블러오기  이쪽 중복인듯 근대 차후에 바꿔야 할듯해요 귀찮아요 ㅋㅋ 하나는 목록에서 ->단일 행만 띄어서 edit 리스트쪽으로 보내고-->
+	
+	<update id="member_hit">
+  	 update member_join set mem_hit=mem_hit+1 where mem_id=#{mem_id}
+  	</update>
+  	<!--//회원 로그인시 방문수 증가 트랜젝션 적용 1트랜젝션 적용 1트랜젝션 적용  -->
+  	
+  	
+  	<!-- 여기서 부터 회원 아이디/비번 검색 부분 입니다  -->
+
+  	<!-- 회원검색(아이디 찾기) -->
+ 	<select id="member_id_find" parameterType="member" resultType="member">
+ 	select * from member_join where mem_name=#{mem_name} 
+    and mem_phone=#{mem_phone} and mem_phone02=#{mem_phone02} and mem_phone03=#{mem_phone03} 
+    </select>
+    
+    <select id="member_pwd_find" parameterType="member" resultType="member">
+    select * from member_join where mem_id=#{mem_id} 
+    and mem_name=#{mem_name} and mem_email=#{mem_email}
+    </select>
+    		
+	<!-- 여기서 부터 관리자 단입니다  -->
+	<select id="member_list" resultType="member">
+  	select * from member_join where member_Activation like'Y%'
+  	</select><!-- 전체목록 띄운다 -->
+  	
+  	<select id="edit_list" resultType="member" parameterType="member">
+  	select * from member_join where mem_id=#{mem_id}
+  	</select><!-- 회원 수정할 목록 아이디 Check 기준으로 블러오기 이쪽에서는 블랙리스트 하기 아아아아아 나도 이게 왜이러는지 꼬인듯해요  나중에 한번 정리해서 알려드릴께요 ㅋㅋ-->
+	
+	<update id="blackList" parameterType="member">
+	update member_join set delete_reason=#{delete_reason},member_Activation=#{member_Activation} where mem_no=#{mem_no}
+	</update><!-- 회원 블랙리스트 지정 -->
+	
+	<select id="blackList_total" resultType="member">
+	select * from member_join where member_Activation like'N%'
+  	</select><!-- 블랙리스트 지정되면 활성화 컬럼부분 데이터가 no가 된다 이때 no기준 컬럼으로 회원을  -->
+  	
+  	<delete id="member_delete" parameterType="member">
+  	delete from member_join where mem_id=#{mem_id}
+  	</delete><!-- 삭제 -->
+  	
+  	<select id="admin_search_list" resultType="member">
+  	 select * from(select rowNum rNum,mem_id,mem_pwd,mem_name,mem_age,mem_addr,mem_email,mem_hit,mem_edit,mem_date,member_Activation from(select * from member_join
+    <where>
+    <if test="find_field == ''">    
+    </if>
+    and member_Activation ='YES'  
+    <if test="find_field=='mem_id'">    
+    and mem_id like #{find_name}
+    </if>
+    </where>  
+    order by mem_id asc))where rNum &gt;= #{startrow} and rNum &lt;= #{endrow}
+	<!-- &gt;은 ~보다 크다(>), &lt;은 ~보다 작다(<)-->     
+  	</select>
+  	
+  	<select id="admin_search_count" resultType="int">
+  	 select count(mem_id) from member_join
+    <where>
+    <if test="find_field == ''"></if>
+       and member_Activation ='YES'        
+    <if test="find_field=='mem_id'">    
+     and mem_id like #{find_name}            
+    </if>
+    </where>  
+    </select>
+  	
+  	
+  	
+  	<!-- 여기서부터 my page 부분입니다  -->
+  	<select id="my_page_select_one_id" parameterType="member" resultType="member">
+	select * from member_join where mem_id=#{mem_id}
+	</select>
+  	
+  	<update id="My_page_edit_update" parameterType="member" >
+  	update member_join set mem_pwd=#{mem_pwd},mem_pwd2=#{mem_pwd2},mem_phone=#{mem_phone},mem_phone02=#{mem_phone02},mem_phone03=#{mem_phone03},mem_addr=#{mem_addr} where mem_id=#{mem_id}
+  	</update>
+  	
+  	<update id="member_edit_count" parameterType="member" >
+  	update member_join set mem_edit=mem_edit+1 where mem_pwd=#{mem_pwd}
+  	</update>
+  	
+  	<select id="my_page_select_one_no" resultType="member">
+  	select * from member_join where mem_no=#{mem_no}
+  	</select>
+  	
+  	<update id="My_page_delete_update" parameterType="member">
+  	update member_join set mem_id=#{mem_id},delete_reason=#{delete_reason},member_Activation=#{member_Activation} where mem_no=#{mem_no}
+  	</update>
+  	
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Admin_aboard">
+
+<!-- 페이징/검색 -->
+ <select id="getRowabCount" resultType="int">
+		select count(admin_id) from admin_gong
+		<!-- count() 오라클 함수는 레코드 개수를 반환 -->
+		<where>
+			<if test="find_field==''">
+				<!-- 검색조건이 없어서 총 레코드 개수 -->
+			</if>
+			
+			<if test="find_field=='admin_id'">
+				<!-- 검색조건이 제목인 경우 -->
+				admin_id like #{find_name}
+				<!-- like는 오라클 검색연산자 -->
+			</if>
+			
+			
+		</where>
+	</select>
+	
+	
+	<!-- 페이징 리스트..? -->
+	<select id="getAbList" resultType="admin">
+		select *from(select rowNum rNum, admin_no,admin_id,admin_title,
+		admin_date
+		from(select * from admin_gong
+		<where>
+			<if test="find_field==''">
+				<!-- 검색조건이 없어서 총 레코드 개수 -->
+			</if>
+			
+			<if test="find_field=='admin_id'">
+				<!-- 검색조건이 제목인 경우 -->
+				admin_id like #{find_name}
+				<!-- like는 오라클 검색연산자 -->
+			</if>
+		</where>
+		order by admin_no desc))
+		where rNum &gt;= #{startrow} and rNum &lt; =
+		#{endrow}
+		<!-- &gt;은 ~보다 크다(>), &lt;은 ~보다 작다(<) -->
+	</select>
+	
+	
+	<!-- 게시물 저장 -->
+   <insert id="insertabBoard" >
+      insert into admin_gong values(
+      admin_no_seq.nextval,#{admin_id},#{admin_pwd},#{admin_name},
+      sysdate,
+      #{admin_title},#{admin_cont} )
+   </insert>
+   
+   <!-- 내용보기 -->
+   <select id="getAdmin_aBoardCont" resultType="admin">
+    select * from admin_gong where admin_no=#{admin_no}
+   </select>
+   
+   <!-- 수정 -->
+   <select id="ab_editList" resultType="admin">
+   select * from admin_gong where admin_no=#{admin_no}
+   </select>
+   
+   <!-- 수정완료 -->
+   <update id="ab_editlist_up">
+		update admin_gong set
+		admin_title=#{admin_title},admin_cont=#{admin_cont}
+		 where admin_no=#{admin_no}
+	</update>
+   
+   <!-- 목록삭제 -->
+	<delete id="ab_ablist_del">
+		delete from admin_gong where admin_no=#{admin_no}
+	</delete>
+   
+</mapper>

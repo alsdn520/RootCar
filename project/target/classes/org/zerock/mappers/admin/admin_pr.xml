@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Admin_pr">
+   <insert id="pr_p">
+      insert into car_pr values(pr_no_seq.nextval,
+      #{pr_name},#{pr_location},#{pr_car},#{pr_price},
+      #{pr_cont},sysdate, #{pr_file},#{pr_car_Activation})
+   </insert>
+
+   <select id="pr_list" resultType="pr">
+      select * from (select pr_no,pr_car,pr_file,pr_location,pr_name,sysdate,pr_car_Activation from car_pr order by pr_no desc) where rownum &lt; 10
+   </select>
+
+   <select id="getRowCount" resultType="int">
+      select count(pr_no) from car_pr
+      <!-- count() 오라클 함수는 레코드 개수를 반환 -->
+      <where>
+         <if test="find_field==''">
+            <!-- 검색조건이 없어서 총 레코드 개수 -->
+         </if>
+         <if test="find_field=='pr_location'">
+            <!-- 검색조건이 제목인 경우 -->
+            pr_location like #{find_name}
+            <!-- like는 오라클 검색연산자 -->
+         </if>
+         <if test="find_field == 'pr_car'">
+            <!-- 검색조건이 내용인 경우 -->
+            pr_car like #{find_name}
+         </if>
+      </where>
+   </select>
+
+   <select id="getPrList" resultType="pr">
+      select *from(select rowNum rNum,pr_no,
+      pr_location,pr_car,pr_name,pr_price,pr_cont,pr_date,
+      pr_file,pr_car_Activation
+      from(select * from car_pr
+      <where>
+         <if test="find_field==''">
+            <!-- 검색조건이 없어서 총 레코드 개수 -->
+         </if>
+         <if test="find_field=='pr_location'">
+            <!-- 검색조건이 제목인 경우 -->
+            pr_location like #{find_name}
+            <!-- like는 오라클 검색연산자 -->
+         </if>
+
+      </where>
+      order by pr_no desc))
+      where rNum &gt;= #{startrow} and rNum &lt; =
+      #{endrow}
+      <!-- &gt;은 ~보다 크다(>), &lt;은 ~보다 작다(<) -->
+   </select>
+
+   <select id="car_editList" resultType="pr">
+      select * from car_pr where pr_no=#{pr_no}
+   </select>
+
+   <update id="car_editlist_up">
+      update car_pr set
+      pr_name=#{pr_name},pr_location=#{pr_location},pr_car=#{pr_car},pr_price=#{pr_price},
+      pr_cont=#{pr_cont}, pr_file=#{pr_file} where pr_no=#{pr_no}
+   </update><!-- 회원수정 -->
+
+   <delete id="car_prlist_del">
+      delete from car_pr where pr_no=#{pr_no}
+   </delete>
+   
+   
+   <!-- 이쪽부터 예약부분 입니다  -->
+   <select id="select_all_carlist" resultType="pr">
+    select * from car_pr where pr_car_Activation=#{pr_car_Activation}
+   </select>
+   
+   <!-- 예약보기 눌렀을시 차종과 차량을 비교해 가격을 가져온다 -->
+   <select id="db_pr_price_find" resultType="pr">
+    select * from car_pr where pr_car=#{car_name}
+   </select>
+   
+   <update id="update_Activation">
+      update car_pr set pr_car_Activation=#{pr_car_Activation} where pr_car=#{pr_car}
+   </update>
+ 	
+  
+
+</mapper>

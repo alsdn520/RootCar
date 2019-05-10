@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- AOP 자동 프록시 설정 -->
+	<aop:aspectj-autoproxy />
+
+	<!-- 스프링 jdbc -> DataSource 설정 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="oracle.jdbc.OracleDriver" />
+		<property name="url"
+			value="jdbc:oracle:thin:@127.0.0.1:1521:xe" />
+		<property name="username" value="week" />
+		<property name="password" value="week" />
+	</bean><!-- 오라클jdbc드라이버클래스명,디비접속주 소,접속사용자,비번 설정 -->
+
+	<!-- MyBatis에서 스프링 JDBC연결 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- setter()메서드를 통한 의존성 주입 -->
+		<property name="configLocation"
+			value="classpath:/mybatis-config.xml" />
+		<!-- classpath경로는 src/main/resources이다. 이 경로에 mybatis-config.xml파일을 읽어들임. 
+			이 파일의 기능은 데이터저장빈 클래스 객체관리를 한다. -->
+		<!-- mybatis 매퍼태그 경로 설정 -->
+		<property name="mapperLocations"
+			value="classpath:org/zerock/mappers/*/*.xml" />
+	</bean>
+
+	<!-- 트랜잭션 매니저 설정 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<tx:annotation-driven />
+	<!-- @Transactional 애노테이션을 이용한 트랜잭션 관리가 가능 -->
+
+	<!-- mybatis sqlSession 생성자를 통한 의존성 주입 -->
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate"
+		destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory"
+			ref="sqlSessionFactory" /><!-- 생성자를 통한 의존성 주입(DI설정) -->
+	</bean>
+    <!-- 구글 이메일 보내기 -->
+   <bean id="mailSender"
+      class="org.springframework.mail.javamail.JavaMailSenderImpl">
+      <property name="host" value="smtp.gmail.com" />
+      <property name="port" value="587" />
+      <property name="username" value="leejeongmin9601@gmail.com" />
+      <property name="password" value="wjdals12" />
+      <property name="javaMailProperties">
+         <props>
+            <prop key="mail.transport.protocol">smtp</prop>
+            <prop key="mail.smtp.auth">true</prop>
+            <prop key="mail.smtp.starttls.enable">true</prop>
+            <prop key="mail.debug">true</prop>
+         </props>
+      </property>
+   </bean>
+	<!-- DAOImpl의 @Repository가 설정된 부분을 스프링에서 오토 스캔하여 등록하게 함. -->
+	<context:component-scan
+		base-package="org.zerock.persistence" />
+
+	<!-- 비지니스 오토스캔 추가. 이 패키지의 역할은첫번째 컨트롤러와 모델 DAO를 연결하는 중간 매개체역할을 한다. 둘째 고객의 
+		추가요구사항을 반영할 때개발로직코드를 유연하게 작성가능하게 한다.셋째스프링의 AOP를 통한 트랜잭션 적용 핵심이다. -->
+	<context:component-scan
+		base-package="org.zerock.service" />
+
+	<!-- AOP설정 -> aop를 통한 xml방식 설정 -->
+	<aop:config />
+	
+	
+</beans>
+
+
+
+
+
+
+
+
+
+

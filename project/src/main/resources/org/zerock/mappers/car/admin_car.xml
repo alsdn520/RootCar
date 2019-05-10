@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="car">
+
+<!-- 예약 정보 검색 -->
+<select id="Car_find_id" resultType="member" parameterType="member"><!-- mybatis는 resultType의 반환타입 -->
+ select * from member_join where mem_id=#{mem_id}
+</select>
+
+<!-- 예약 정보저장 -->
+  <insert id="Car_insert" parameterType="cr">
+   insert into car_travel values(car_no_seq.nextval,#{car_member_name},#{car_member_email},#{car_member_phone},#{car_name},#{car_location},#{car_Start},#{car_End},#{rent_price},sysdate,#{car_common})  
+  </insert>
+
+<select id="total_admin_CarList" parameterType="cr" resultType="cr">
+select * from car_travel where car_common=#{car_common}
+</select>
+
+</mapper>

@@ -1,0 +1,56 @@
+@charset "UTF-8";
+
+/* admin_index.jsp ui */
+
+#aMain_cont{
+    width:500px; height:640px;
+    /*border:1px solid green;*/
+    border-radius:15px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top : 50px;   
+}
+
+#bsW_wrap{
+   width:500px; height:640px;
+    /*border:1px solid green;*/
+    border-radius:15px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top : 50px;  
+}
+
+/* board_list.jsp ui */
+#bList_wrap{
+   width:700px; border:1px solid blue;
+   padding:10px; border-radius:20px;
+   box-shadow:3px 3px 3px #ccc; 
+   margin-left:auto; margin-right:auto; 
+   margin-top:5px;
+}
+#bList_wrap .bList_title{
+   margin:15px 0 0 230px; width:120px; font-size:19px;
+   background:pink; border-radius:15px; 
+   text-align:center;
+}
+#bList_wrap .bList_count{
+   margin:15px 0 0 500px; width:100px; background:pink;
+   border-radius:15px; text-align:center;
+}
+#bList_t{
+   margin:18px 0 0 17px;
+}
+a:link{text-decoration:none;}
+a:active{text-decoration:none;}
+a:visited{text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+#bList_paging{
+ margin:18px 0 0 160px;   
+}
+#bList_menu{
+   margin:14px 0 0 520px;
+}
+#bFind_wrap{
+    margin:14px 0 10px 170px;   
+}

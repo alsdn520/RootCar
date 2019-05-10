@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Bbs">
+
+	<!-- 자료실 저장 -->
+	<insert id="bbs_in">
+		insert into bbs
+		values(bbs_no_seq.nextval,#{bbs_name},#{bbs_title},#{bbs_pwd},#{bbs_cont},#{bbs_file},0,bbs_no_seq.nextval,0,0,sysdate,#{bbs_id})
+	</insert>
+
+	<!-- 검색전후 레코드 개수 -->
+	<select id="bbs_count" resultType="int">
+		select count(bbs_no) from bbs
+		<where>
+			<if test="find_field == ''">
+				<!-- 검색조건이 없어서 총레코드 개수 -->
+			</if>
+			<if test="find_field=='bbs_name'">
+				<!-- 검색조건이 작성자인 경우 -->
+				bbs_name like #{find_name}
+				<!-- like는 오라클 검색연산자 -->
+			</if>
+			<if test="find_field=='bbs_title'">
+				<!-- 검색조건이 제목인 경우 -->
+				bbs_title like #{find_name}
+				<!-- like는 오라클 검색연산자 -->
+			</if>
+			<if test="find_field == 'bbs_cont'">
+				<!-- 검색조건이 내용인 경우 -->
+				bbs_cont like #{find_name}
+			</if>
+		</where>
+	</select>
+
+	<!-- 검색전후 자료실 목록 -->
+	<select id="bbs_list" resultType="bbs">
+		select * from (select rowNum
+		rNum,bbs_no,bbs_name,bbs_title,bbs_hit,bbs_ref,bbs_step,bbs_level,bbs_date,bbs_id
+		from(select * from bbs
+		<where>
+			<if test="find_field == ''">
+				<!-- 검색조건이 없어서 총레코드 개수 -->
+			</if>
+			<if test="find_field=='bbs_name'">
+				<!-- 검색조건이 작성자인 경우 -->
+				bbs_name like #{find_name}
+				<!-- like는 오라클 검색연산자 -->
+			</if>
+			<if test="find_field=='bbs_title'">
+				<!-- 검색조건이 제목인 경우 -->
+				bbs_title like #{find_name}
+				<!-- like는 오라클 검색연산자 -->
+			</if>
+			<if test="find_field == 'bbs_cont'">
+				<!-- 검색조건이 내용인 경우 -->
+				bbs_cont like #{find_name}
+			</if>
+		</where>
+		order by bbs_ref desc,bbs_level asc)) where rNum &gt;= #{startrow} and
+		rNum &lt;= #{endrow}
+		<!-- &gt;은 ~보다 크다(>), &lt;은 ~보다 작다(<) -->
+	</select>
+	
+	<!-- 조회수 증가 -->
+ 	<update id="bbs_hi">
+  	update bbs set bbs_hit=bbs_hit+1 where bbs_no=#{bbs_no}
+	</update>
+ 
+ 	<!-- 내용보기+답변폼+수정폼+삭제폼 -->
+ 	<select id="bbs_co" resultType="bbs">
+  	select * from bbs where bbs_no=#{bbs_no}
+ 	</select>
+ 	
+ 	<!-- 답변 레벨업 -->
+ 	<update id="level_up">
+ 	update bbs set bbs_level=bbs_level+1 where bbs_ref=#{bbs_ref} and bbs_level>#{bbs_level}
+ 	</update>
+ 	
+ 	<!-- 답변저장 -->
+ 	<insert id="reply_in2">
+ 	insert into bbs (bbs_no,bbs_name,bbs_title,bbs_pwd,bbs_cont,bbs_hit,bbs_ref,bbs_step,bbs_level,bbs_date,bbs_id) values (bbs_no_seq.nextval,
+ 	#{bbs_name},#{bbs_title},#{bbs_pwd},#{bbs_cont},0,#{bbs_ref},#{bbs_step}+1,#{bbs_level}+1,sysdate,#{bbs_id})	
+ 	</insert>
+ 	
+	<!-- 자료실 수정 -->
+ 	<update id="bbs_edit">
+ 	update bbs set bbs_name=#{bbs_name},bbs_title=#{bbs_title},bbs_cont=#{bbs_cont},bbs_file=#{bbs_file} where bbs_no=#{bbs_no}
+ 	</update>
+ 	
+ 	<!-- 답변글 게시글 번호 기준으로 자료실 삭제 -->
+ 	<delete id="bbs_del">
+ 	delete from bbs where bbs_no=#{bbs_no}
+ 	</delete>
+ 	
+ 	<!-- 원본글 게시글 글그룹 기준으로 자료실 삭제 -->
+ 	<delete id="bbs_del2">
+ 	delete from bbs where bbs_ref=#{bbs_ref}
+ 	</delete>
+ 	
+ 	<!-- 댓글저장 -->
+	<insert id="reply_in">
+	insert into reply values (reply_no_seq.nextval,#{bbs_no},#{reply_name},#{reply_cont},sysdate)
+	</insert>
+	
+	<!-- 댓글목록 -->
+	<select id="reply_list" resultType="reply">
+	select * from reply where bbs_no=#{bbs_no} order by reply_no desc
+	</select>
+	
+	<!-- 수정을 위해 댓글 내용 가져오기 -->
+	<select id="reply_cont" resultType="reply">
+	select * from reply where reply_no=#{reply_no}
+	</select>
+	
+	<!-- 댓글수정 -->
+	<update id="reply_edit">
+	update reply set reply_cont=#{reply_cont},reply_date=sysdate where reply_no=#{reply_no}
+	</update>
+	
+	<!-- 댓글삭제 -->
+	<delete id="reply_del">
+	delete from reply where reply_no=#{reply_no}
+	</delete>
+	
+	<!-- 관리자 게시글 삭제(원본글 다중삭제) -->
+ 	<delete id="admin_del">
+ 	delete from bbs where bbs_no=#{bbs_no}
+ 	</delete>	
+ 	
+ 	<!-- 관리작 게시글 삭(답변글 다중삭제) -->
+ 	<delete id="admin_del2">
+ 	delete from bbs where bbs_no=#{bbs_no}
+ 	</delete>
+ 	
+ 	<!-- 디비로부터 파일을 검색 -->
+ 	<select id="findFile" resultType="bbs">
+ 	select * from bbs where bbs_no=#{bbs_no}
+ 	</select>
+
+</mapper>

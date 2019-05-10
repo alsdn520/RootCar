@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+/* admin_index.jsp ui */
+
+#aMain_cont{
+    width:500px; height:640px;
+    /*border:1px solid green;*/
+    border-radius:15px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top : 180px;
+
+   
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+ <typeAliases>
+
+  
+   <typeAlias alias="admin" type="org.zerock.domain.AdminVO"/>
+  
+   <!-- 회원 가입 부분 -->
+  <typeAlias alias="member" type="org.zerock.domain.MemberVO"/>
+  
+   <!-- 관리자 공지 부분 -->
+  <typeAlias alias="gongji" type="org.zerock.domain.GongjiVO"/>
+  
+  <!-- 상품 등록 부분 -->
+  <typeAlias alias="pr" type="org.zerock.domain.PrVO"/>
+  
+   <!-- 상품 예약 부분 -->
+  <typeAlias alias="cr" type="org.zerock.domain.CarVO"/>
+  
+  <!-- 게시판 -->
+  <typeAlias alias="bbs" type="org.zerock.domain.BbsVO" />
+  
+  <!-- 댓글  -->
+  <typeAlias alias="reply" type="org.zerock.domain.ReplyVO"/>
+  
+  
+ </typeAliases>
+</configuration>
+
+
+
+
+
+
